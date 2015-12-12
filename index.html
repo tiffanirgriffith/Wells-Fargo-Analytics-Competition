@@ -118,24 +118,7 @@ library(<span class="pl-smi">tm</span>)
 <span class="pl-smi">df.final1</span>
 <span class="pl-smi">df.final2</span>
 <span class="pl-smi">total_bankD</span> <span class="pl-k">&lt;-</span> rbind(<span class="pl-smi">df.final1</span>,<span class="pl-smi">df.final2</span>)
-<span class="pl-c"># This turns out to be too slow</span>
-<span class="pl-c"># Add the metadata</span>
-<span class="pl-c"># This takes a bit to run</span>
-<span class="pl-c"># You can add more here</span>
-‪<span class="pl-c">#‎for‬‬‬ (i in 1:nrow(df)) {</span>
-<span class="pl-c"># meta(docs[[i]],"MediaType") = df$MediaType[i]</span>
-<span class="pl-c"># meta(docs[[i]],"Year") = df$Year[i]</span>
-<span class="pl-c"># if (grepl("BankA",df$FullText[i])) {</span>
-<span class="pl-c"># meta(docs[[i]],"BankA") = T</span>
-<span class="pl-c"># } else {</span>
-<span class="pl-c"># meta(docs[[i]],"BankA") = F</span>
-<span class="pl-c"># }</span>
-<span class="pl-c"># if (grepl("BankB",df$FullText[i])) {</span>
-<span class="pl-c"># meta(docs[[i]],"BankB") = T</span>
-<span class="pl-c"># } else {</span>
-<span class="pl-c"># meta(docs[[i]],"BankB") = F</span>
-<span class="pl-c"># }</span>
-<span class="pl-c">#}</span>
+<span class="pl-smi">lse</span> {
 ‪<span class="pl-c">#‎bankA‬‬‬.idx &lt;- meta(docs, "BankA") == T</span>
 <span class="pl-v">bankA.docs</span> <span class="pl-k">=</span> <span class="pl-smi">docs</span>[<span class="pl-smi">bankA.idx</span>]
 <span class="pl-v">bankB.docs</span> <span class="pl-k">=</span> <span class="pl-smi">docs</span>[<span class="pl-smi">bankB.idx</span>]
@@ -367,7 +350,7 @@ xlab(<span class="pl-s"><span class="pl-pds">'</span>Media Type<span class="pl-p
 <h3>
 <a id="graphs-for-sentiment-analysis" class="anchor" href="#graphs-for-sentiment-analysis" aria-hidden="true"><span class="octicon octicon-link"></span></a>Graphs for Sentiment Analysis</h3>
 
-<p>!<img src="http://i.imgur.com/4bGuauq.gifv" alt=""></p>
+<p><img src="http://i.imgur.com/4bGuauq.gif" alt=""></p>
 
 <p>Bank A had an average of 0.32:0.28 (1.14) (twitter) and 0.38:0.32 (1.19)(Facebook) (Negative: Positive)<br>
 Bank B had an average 0.24:0.27 (0.89) (twitter) and 0.38:0.21 (1.81) (Facebook) (Negative: Positive)
