@@ -1,0 +1,440 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Wells Fargo Analytics Competition by tiffanirgriffith</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Wells Fargo Analytics Competition</h1>
+        <p class="header"></p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/tiffanirgriffith/Wells-Fargo-Analytics-Competition/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/tiffanirgriffith/Wells-Fargo-Analytics-Competition/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/tiffanirgriffith/Wells-Fargo-Analytics-Competition">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/tiffanirgriffith">tiffanirgriffith</a></p>
+
+
+      </header>
+      <section>
+        <h3>
+<a id="competition-details" class="anchor" href="#competition-details" aria-hidden="true"><span class="octicon octicon-link"></span></a>Competition Details</h3>
+
+<p>Wells Fargo invited College of Charleston along with 12 other universities to participation in a social media analytics competition. We were challenged to develop a repeatable process to understand the drivers from consumer financial conversations on twitter and Facebook.
+<a href="https://www.mindsumo.com/contests/wells-fargo">https://www.mindsumo.com/contests/wells-fargo</a> </p>
+
+<h3>
+<a id="our-methodology" class="anchor" href="#our-methodology" aria-hidden="true"><span class="octicon octicon-link"></span></a>Our Methodology</h3>
+
+<p>Our approach was to examine the data and isolate terms which could be used to distinguish the general feelings towards each individual banks’ foreign/abroad transactions. Our methodology was to isolate each bank and then run a sentiment analysis for positive and negative words (provided by positive and negative lexicons) within posts containing the words foreign and abroad. We ran a sentiment analysis and interpreted the graphs and ratios. Below is a description and visual representation of our analytic process flow. </p>
+
+<h3>
+<a id="analytic-process-flow" class="anchor" href="#analytic-process-flow" aria-hidden="true"><span class="octicon octicon-link"></span></a>Analytic Process Flow</h3>
+
+<p>Our code reflects our analytical process flow in that we extracted the raw data and manually reviewed some banks for common topic. We then used R to clean the data. We removed punctuation, non-important words, numbers, etc. We also divided the data into bank specific data frames. We then ran sentiment analysis for negative and positive feelings towards foreign affairs and abroad transactions for each bank. We analyzed our data and tried to make inferences based on the negative to positive ratios. 
+We noticed many topics; some keywords we found were withdrawn, overdrawn, customer service, and foreign/abroad transactions. We focused on the topics of foreign affairs and abroad transactions. The substances were determined for each bank based on their negative to positive ratios. Below are our graphs for the positive and negative sentiment analysis for each bank.
+<a href="http://i.imgur.com/9IKTuGv.png">http://i.imgur.com/9IKTuGv.png</a></p>
+
+<h3>
+<a id="our-code" class="anchor" href="#our-code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Our Code</h3>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-smi">Cleaning</span> <span class="pl-smi">up</span> <span class="pl-smi">the</span> <span class="pl-smi">data</span><span class="pl-k">:</span>
+<span class="pl-smi">Loading</span> <span class="pl-smi">R</span><span class="pl-k">:</span>
+<span class="pl-v">df</span> <span class="pl-k">=</span> read.table(<span class="pl-s"><span class="pl-pds">'</span>Dataset.txt<span class="pl-pds">'</span></span>,<span class="pl-v">sep</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>|<span class="pl-pds">"</span></span>,<span class="pl-v">header</span><span class="pl-k">=</span><span class="pl-c1">T</span>)
+<span class="pl-smi">df</span><span class="pl-k">$</span><span class="pl-v">FullText</span> <span class="pl-k">=</span> as.character(<span class="pl-smi">df</span><span class="pl-k">$</span><span class="pl-smi">FullText</span>)
+<span class="pl-c"># Grab just the texts, so you can load them in the Corpus</span>
+<span class="pl-v">df.texts</span> <span class="pl-k">=</span> as.data.frame(<span class="pl-smi">df</span>[,ncol(<span class="pl-smi">df</span>)])
+colnames(<span class="pl-smi">df.texts</span>) <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>FullText<span class="pl-pds">'</span></span>
+<span class="pl-c"># Remove non-ascii characters</span>
+<span class="pl-v">df.texts.clean</span> <span class="pl-k">=</span> as.data.frame(iconv(<span class="pl-smi">df.texts</span><span class="pl-k">$</span><span class="pl-smi">FullText</span>, <span class="pl-s"><span class="pl-pds">"</span>latin1<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>ASCII<span class="pl-pds">"</span></span>, <span class="pl-v">sub</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>))
+colnames(<span class="pl-smi">df.texts.clean</span>) <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>FullText<span class="pl-pds">'</span></span>
+<span class="pl-smi">df</span><span class="pl-k">$</span><span class="pl-v">FullText</span> <span class="pl-k">=</span> <span class="pl-smi">df.texts.clean</span><span class="pl-k">$</span><span class="pl-smi">FullText</span>
+<span class="pl-c"># If you want to test on just 1000 records using df.1000 created below</span>
+<span class="pl-v">idx.1000</span> <span class="pl-k">=</span> sample(<span class="pl-c1">1</span><span class="pl-k">:</span>nrow(<span class="pl-smi">df</span>),<span class="pl-c1">1000</span>)
+<span class="pl-v">df.1000</span> <span class="pl-k">=</span> <span class="pl-smi">df</span>[<span class="pl-smi">idx.1000</span>,]
+<span class="pl-c"># Load using the tm library</span>
+library(<span class="pl-smi">tm</span>) 
+<span class="pl-smi">docs</span> <span class="pl-k">&lt;-</span> Corpus(DataframeSource(<span class="pl-smi">df.texts.clean</span>))
+<span class="pl-c"># Strip extra whitespace</span>
+<span class="pl-smi">docs</span> <span class="pl-k">&lt;-</span> tm_map(<span class="pl-smi">docs</span>, <span class="pl-smi">stripWhitespace</span>)
+<span class="pl-v">bankA.idx</span> <span class="pl-k">=</span> which(sapply(<span class="pl-smi">df</span><span class="pl-k">$</span><span class="pl-smi">FullText</span>,<span class="pl-k">function</span>(<span class="pl-smi">x</span>) grepl(<span class="pl-s"><span class="pl-pds">"</span>BankA<span class="pl-pds">"</span></span>,<span class="pl-smi">x</span>)))
+<span class="pl-v">bankB.idx</span> <span class="pl-k">=</span> which(sapply(<span class="pl-smi">df</span><span class="pl-k">$</span><span class="pl-smi">FullText</span>,<span class="pl-k">function</span>(<span class="pl-smi">x</span>) grepl(<span class="pl-s"><span class="pl-pds">"</span>BankB<span class="pl-pds">"</span></span>,<span class="pl-smi">x</span>)))
+<span class="pl-v">bankC.idx</span> <span class="pl-k">=</span> which(sapply(<span class="pl-smi">df</span><span class="pl-k">$</span><span class="pl-smi">FullText</span>,<span class="pl-k">function</span>(<span class="pl-smi">x</span>) grepl(<span class="pl-s"><span class="pl-pds">"</span>BankC<span class="pl-pds">"</span></span>,<span class="pl-smi">x</span>)))
+<span class="pl-v">bankD.idx</span> <span class="pl-k">=</span> which(sapply(<span class="pl-smi">df</span><span class="pl-k">$</span><span class="pl-smi">FullText</span>,<span class="pl-k">function</span>(<span class="pl-smi">x</span>) grepl(<span class="pl-s"><span class="pl-pds">"</span>BankD<span class="pl-pds">"</span></span>,<span class="pl-smi">x</span>)))
+<span class="pl-v">df.banka</span><span class="pl-k">=</span><span class="pl-smi">df</span>[<span class="pl-smi">bankA.idx</span>,]
+<span class="pl-smi">df.banka</span>
+<span class="pl-v">abroad.idx</span><span class="pl-k">=</span>which(sapply(<span class="pl-smi">df.banka</span><span class="pl-k">$</span><span class="pl-smi">FullText</span>,<span class="pl-k">function</span>(<span class="pl-smi">x</span>) grepl(<span class="pl-s"><span class="pl-pds">"</span>abroad<span class="pl-pds">"</span></span>,<span class="pl-smi">x</span>)))
+<span class="pl-smi">abroad.idx</span>
+<span class="pl-v">foreign.idx</span><span class="pl-k">=</span>which(sapply(<span class="pl-smi">df.banka</span><span class="pl-k">$</span><span class="pl-smi">FullText</span>,<span class="pl-k">function</span>(<span class="pl-smi">x</span>) grepl(<span class="pl-s"><span class="pl-pds">"</span>foreign<span class="pl-pds">"</span></span>,<span class="pl-smi">x</span>)))
+<span class="pl-smi">foreign.idx</span>
+<span class="pl-v">df.final1</span><span class="pl-k">=</span><span class="pl-smi">df.banka</span>[<span class="pl-smi">abroad.idx</span>,]
+<span class="pl-v">df.final2</span><span class="pl-k">=</span><span class="pl-smi">df.banka</span>[<span class="pl-smi">foreign.idx</span>,]
+<span class="pl-smi">df.final1</span>
+<span class="pl-smi">df.final2</span>
+<span class="pl-smi">total_bankA</span> <span class="pl-k">&lt;-</span> rbind(<span class="pl-smi">df.final1</span>,<span class="pl-smi">df.final2</span>)
+<span class="pl-v">df.bankb</span><span class="pl-k">=</span><span class="pl-smi">df</span>[<span class="pl-smi">bankB.idx</span>,]
+<span class="pl-smi">df.bankb</span>
+<span class="pl-v">abroad.idx</span><span class="pl-k">=</span>which(sapply(<span class="pl-smi">df.bankb</span><span class="pl-k">$</span><span class="pl-smi">FullText</span>,<span class="pl-k">function</span>(<span class="pl-smi">x</span>) grepl(<span class="pl-s"><span class="pl-pds">"</span>abroad<span class="pl-pds">"</span></span>,<span class="pl-smi">x</span>)))
+<span class="pl-smi">abroad.idx</span>
+<span class="pl-v">foreign.idx</span><span class="pl-k">=</span>which(sapply(<span class="pl-smi">df.bankb</span><span class="pl-k">$</span><span class="pl-smi">FullText</span>,<span class="pl-k">function</span>(<span class="pl-smi">x</span>) grepl(<span class="pl-s"><span class="pl-pds">"</span>foreign<span class="pl-pds">"</span></span>,<span class="pl-smi">x</span>)))
+<span class="pl-smi">foreign.idx</span>
+<span class="pl-v">df.final1</span><span class="pl-k">=</span><span class="pl-smi">df.bankb</span>[<span class="pl-smi">abroad.idx</span>,]
+<span class="pl-v">df.final2</span><span class="pl-k">=</span><span class="pl-smi">df.bankb</span>[<span class="pl-smi">foreign.idx</span>,]
+<span class="pl-smi">df.final1</span>
+<span class="pl-smi">df.final2</span>
+<span class="pl-smi">total_bankC</span> <span class="pl-k">&lt;-</span> rbind(<span class="pl-smi">df.final1</span>,<span class="pl-smi">df.final2</span>)
+<span class="pl-v">df.bankc</span><span class="pl-k">=</span><span class="pl-smi">df</span>[<span class="pl-smi">bankC.idx</span>,]
+<span class="pl-smi">df.bankc</span>
+<span class="pl-v">abroad.idx</span><span class="pl-k">=</span>which(sapply(<span class="pl-smi">df.bankc</span><span class="pl-k">$</span><span class="pl-smi">FullText</span>,<span class="pl-k">function</span>(<span class="pl-smi">x</span>) grepl(<span class="pl-s"><span class="pl-pds">"</span>abroad<span class="pl-pds">"</span></span>,<span class="pl-smi">x</span>)))
+<span class="pl-smi">abroad.idx</span>
+<span class="pl-v">foreign.idx</span><span class="pl-k">=</span>which(sapply(<span class="pl-smi">df.bankc</span><span class="pl-k">$</span><span class="pl-smi">FullText</span>,<span class="pl-k">function</span>(<span class="pl-smi">x</span>) grepl(<span class="pl-s"><span class="pl-pds">"</span>foreign<span class="pl-pds">"</span></span>,<span class="pl-smi">x</span>)))
+<span class="pl-smi">foreign.idx</span>
+<span class="pl-v">df.final1</span><span class="pl-k">=</span><span class="pl-smi">df.bankc</span>[<span class="pl-smi">abroad.idx</span>,]
+<span class="pl-v">df.final2</span><span class="pl-k">=</span><span class="pl-smi">df.bankc</span>[<span class="pl-smi">foreign.idx</span>,]
+<span class="pl-smi">df.final1</span>
+<span class="pl-smi">df.final2</span>
+<span class="pl-smi">total_bankC</span> <span class="pl-k">&lt;-</span> rbind(<span class="pl-smi">df.final1</span>,<span class="pl-smi">df.final2</span>)
+<span class="pl-v">df.bankd</span><span class="pl-k">=</span><span class="pl-smi">df</span>[<span class="pl-smi">bankD.idx</span>,]
+<span class="pl-smi">df.bankd</span>
+<span class="pl-v">abroad.idx</span><span class="pl-k">=</span>which(sapply(<span class="pl-smi">df.bankd</span><span class="pl-k">$</span><span class="pl-smi">FullText</span>,<span class="pl-k">function</span>(<span class="pl-smi">x</span>) grepl(<span class="pl-s"><span class="pl-pds">"</span>abroad<span class="pl-pds">"</span></span>,<span class="pl-smi">x</span>)))
+<span class="pl-smi">abroad.idx</span>
+<span class="pl-v">foreign.idx</span><span class="pl-k">=</span>which(sapply(<span class="pl-smi">df.bankd</span><span class="pl-k">$</span><span class="pl-smi">FullText</span>,<span class="pl-k">function</span>(<span class="pl-smi">x</span>) grepl(<span class="pl-s"><span class="pl-pds">"</span>foreign<span class="pl-pds">"</span></span>,<span class="pl-smi">x</span>)))
+<span class="pl-smi">foreign.idx</span>
+<span class="pl-v">df.final1</span><span class="pl-k">=</span><span class="pl-smi">df.bankd</span>[<span class="pl-smi">abroad.idx</span>,]
+<span class="pl-v">df.final2</span><span class="pl-k">=</span><span class="pl-smi">df.bankd</span>[<span class="pl-smi">foreign.idx</span>,]
+<span class="pl-smi">df.final1</span>
+<span class="pl-smi">df.final2</span>
+<span class="pl-smi">total_bankD</span> <span class="pl-k">&lt;-</span> rbind(<span class="pl-smi">df.final1</span>,<span class="pl-smi">df.final2</span>)
+<span class="pl-c"># This turns out to be too slow</span>
+<span class="pl-c"># Add the metadata</span>
+<span class="pl-c"># This takes a bit to run</span>
+<span class="pl-c"># You can add more here</span>
+‪<span class="pl-c">#‎for‬‬‬ (i in 1:nrow(df)) {</span>
+<span class="pl-c"># meta(docs[[i]],"MediaType") = df$MediaType[i]</span>
+<span class="pl-c"># meta(docs[[i]],"Year") = df$Year[i]</span>
+<span class="pl-c"># if (grepl("BankA",df$FullText[i])) {</span>
+<span class="pl-c"># meta(docs[[i]],"BankA") = T</span>
+<span class="pl-c"># } else {</span>
+<span class="pl-c"># meta(docs[[i]],"BankA") = F</span>
+<span class="pl-c"># }</span>
+<span class="pl-c"># if (grepl("BankB",df$FullText[i])) {</span>
+<span class="pl-c"># meta(docs[[i]],"BankB") = T</span>
+<span class="pl-c"># } else {</span>
+<span class="pl-c"># meta(docs[[i]],"BankB") = F</span>
+<span class="pl-c"># }</span>
+<span class="pl-c">#}</span>
+‪<span class="pl-c">#‎bankA‬‬‬.idx &lt;- meta(docs, "BankA") == T</span>
+<span class="pl-v">bankA.docs</span> <span class="pl-k">=</span> <span class="pl-smi">docs</span>[<span class="pl-smi">bankA.idx</span>]
+<span class="pl-v">bankB.docs</span> <span class="pl-k">=</span> <span class="pl-smi">docs</span>[<span class="pl-smi">bankB.idx</span>]
+<span class="pl-v">bankC.docs</span> <span class="pl-k">=</span> <span class="pl-smi">docs</span>[<span class="pl-smi">bankC.idx</span>]
+<span class="pl-v">bankD.docs</span> <span class="pl-k">=</span> <span class="pl-smi">docs</span>[<span class="pl-smi">bankD.idx</span>]
+summary(<span class="pl-smi">docs</span>)
+<span class="pl-smi">docs</span> <span class="pl-k">&lt;-</span> tm_map(<span class="pl-smi">docs</span>, <span class="pl-smi">removePunctuation</span>)  
+
+<span class="pl-smi">Running</span> <span class="pl-smi">the</span> <span class="pl-smi">sentiment</span> <span class="pl-smi">analysis</span><span class="pl-k">:</span>
+<span class="pl-c">#-------Sentiment analysis Bank A-------</span>
+<span class="pl-smi">pos</span> <span class="pl-k">&lt;-</span> scan(<span class="pl-s"><span class="pl-pds">'</span>positive-words.txt<span class="pl-pds">'</span></span>,<span class="pl-v">what</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">'</span>character<span class="pl-pds">'</span></span>,<span class="pl-v">comment.char</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">'</span>;<span class="pl-pds">'</span></span>)
+<span class="pl-smi">neg</span> <span class="pl-k">&lt;-</span> scan(<span class="pl-s"><span class="pl-pds">'</span>negative-words.txt<span class="pl-pds">'</span></span>,<span class="pl-v">what</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">'</span>character<span class="pl-pds">'</span></span>,<span class="pl-v">comment.char</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">'</span>;<span class="pl-pds">'</span></span>)
+<span class="pl-v">score.sentiment</span> <span class="pl-k">=</span> <span class="pl-k">function</span>(<span class="pl-smi">sentences</span>, <span class="pl-smi">pos.words</span>, <span class="pl-smi">neg.words</span>, <span class="pl-v">.progress</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">'</span>none<span class="pl-pds">'</span></span>)
+{
+require(<span class="pl-smi">plyr</span>)
+require(<span class="pl-smi">stringr</span>)
+<span class="pl-c"># we got a vector of sentences. plyr will handle a list</span>
+<span class="pl-c"># or a vector as an "l" for us</span>
+<span class="pl-c"># we want a simple array ("a") of scores back, so we use </span>
+<span class="pl-c"># "l" + "a" + "ply" = "laply":</span>
+<span class="pl-v">scores</span> <span class="pl-k">=</span> laply(<span class="pl-smi">sentences</span>, <span class="pl-k">function</span>(<span class="pl-smi">sentence</span>, <span class="pl-smi">pos.words</span>, <span class="pl-smi">neg.words</span>) {
+<span class="pl-c"># clean up sentences with R's regex-driven global substitute, gsub():</span>
+<span class="pl-v">sentence</span> <span class="pl-k">=</span> gsub(<span class="pl-s"><span class="pl-pds">'</span>[[:punct:]]<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span><span class="pl-pds">'</span></span>, <span class="pl-smi">sentence</span>)
+<span class="pl-v">sentence</span> <span class="pl-k">=</span> gsub(<span class="pl-s"><span class="pl-pds">'</span>[[:cntrl:]]<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span><span class="pl-pds">'</span></span>, <span class="pl-smi">sentence</span>)
+<span class="pl-v">sentence</span> <span class="pl-k">=</span> gsub(<span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\\</span>d+<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span><span class="pl-pds">'</span></span>, <span class="pl-smi">sentence</span>)
+<span class="pl-c"># and convert to lower case:</span>
+<span class="pl-v">sentence</span> <span class="pl-k">=</span> tolower(<span class="pl-smi">sentence</span>)
+<span class="pl-c"># split into words. str_split is in the stringr package</span>
+<span class="pl-v">word.list</span> <span class="pl-k">=</span> str_split(<span class="pl-smi">sentence</span>, <span class="pl-s"><span class="pl-pds">'</span><span class="pl-cce">\\</span>s+<span class="pl-pds">'</span></span>)
+<span class="pl-c"># sometimes a list() is one level of hierarchy too much</span>
+<span class="pl-v">words</span> <span class="pl-k">=</span> unlist(<span class="pl-smi">word.list</span>)
+<span class="pl-c"># compare our words to the dictionaries of positive &amp; negative terms</span>
+<span class="pl-v">pos.matches</span> <span class="pl-k">=</span> match(<span class="pl-smi">words</span>, <span class="pl-smi">pos.words</span>)
+<span class="pl-v">neg.matches</span> <span class="pl-k">=</span> match(<span class="pl-smi">words</span>, <span class="pl-smi">neg.words</span>)
+<span class="pl-c"># match() returns the position of the matched term or NA</span>
+<span class="pl-c"># we just want a TRUE/FALSE:</span>
+<span class="pl-v">pos.matches</span> <span class="pl-k">=</span> <span class="pl-k">!</span>is.na(<span class="pl-smi">pos.matches</span>)
+<span class="pl-v">neg.matches</span> <span class="pl-k">=</span> <span class="pl-k">!</span>is.na(<span class="pl-smi">neg.matches</span>)
+<span class="pl-c"># and conveniently enough, TRUE/FALSE will be treated as 1/0 by sum():</span>
+<span class="pl-v">score</span> <span class="pl-k">=</span> sum(<span class="pl-smi">pos.matches</span>) <span class="pl-k">-</span> sum(<span class="pl-smi">neg.matches</span>)
+<span class="pl-k">return</span>(<span class="pl-smi">score</span>)
+}, <span class="pl-smi">pos.words</span>, <span class="pl-smi">neg.words</span>, <span class="pl-v">.progress</span><span class="pl-k">=</span>.<span class="pl-smi">progress</span> )
+<span class="pl-v">scores.df</span> <span class="pl-k">=</span> <span class="pl-k">data.frame</span>(<span class="pl-v">score</span><span class="pl-k">=</span><span class="pl-smi">scores</span>, <span class="pl-v">text</span><span class="pl-k">=</span><span class="pl-smi">sentences</span>)
+<span class="pl-k">return</span>(<span class="pl-smi">scores.df</span>)
+}
+<span class="pl-v">total.sentiment</span> <span class="pl-k">=</span> <span class="pl-smi">total_bankA</span>
+<span class="pl-v">scores</span> <span class="pl-k">=</span> score.sentiment(as.character(<span class="pl-smi">total.sentiment</span><span class="pl-k">$</span><span class="pl-smi">FullText</span>), <span class="pl-smi">pos</span>, <span class="pl-smi">neg</span>, <span class="pl-v">.progress</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">'</span>text<span class="pl-pds">'</span></span>)
+<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-v">very.pos</span> <span class="pl-k">=</span> as.numeric(<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">score</span> <span class="pl-k">&gt;</span><span class="pl-k">=</span> <span class="pl-c1">1</span>)
+<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-v">very.neg</span> <span class="pl-k">=</span> as.numeric(<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">score</span> <span class="pl-k">&lt;</span><span class="pl-k">=</span> <span class="pl-k">-</span><span class="pl-c1">1</span>)
+<span class="pl-c"># how many very positives and very negatives</span>
+<span class="pl-v">numpos</span> <span class="pl-k">=</span> sum(<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">very.pos</span>)
+<span class="pl-v">numneg</span> <span class="pl-k">=</span> sum(<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">very.neg</span>)
+<span class="pl-c"># global score</span>
+<span class="pl-v">global_score</span> <span class="pl-k">=</span> round( <span class="pl-c1">100</span> <span class="pl-k">*</span> <span class="pl-smi">numpos</span> <span class="pl-k">/</span> (<span class="pl-smi">numpos</span> <span class="pl-k">+</span> <span class="pl-smi">numneg</span>) )
+<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-v">mediatype</span> <span class="pl-k">=</span> <span class="pl-smi">total.sentiment</span><span class="pl-k">$</span><span class="pl-smi">MediaType</span>
+<span class="pl-c"># colors</span>
+<span class="pl-v">cols</span> <span class="pl-k">=</span> c(<span class="pl-s"><span class="pl-pds">"</span>‪#‎7CAE00‬‬‬<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>‪#‎00BFC4‬‬‬<span class="pl-pds">"</span></span>)
+names(<span class="pl-smi">cols</span>) <span class="pl-k">=</span> c(<span class="pl-s"><span class="pl-pds">"</span>twitter<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>facebook<span class="pl-pds">"</span></span>)
+<span class="pl-c"># boxplot</span>
+library(<span class="pl-smi">ggplot2</span>)
+ggplot(<span class="pl-smi">scores</span>, aes(<span class="pl-v">x</span><span class="pl-k">=</span><span class="pl-smi">mediatype</span>, <span class="pl-v">y</span><span class="pl-k">=</span><span class="pl-smi">score</span>, <span class="pl-v">group</span><span class="pl-k">=</span><span class="pl-smi">mediatype</span>)) <span class="pl-k">+</span>
+geom_boxplot(aes(<span class="pl-v">fill</span><span class="pl-k">=</span><span class="pl-smi">mediatype</span>)) <span class="pl-k">+</span>
+scale_fill_manual(<span class="pl-v">values</span><span class="pl-k">=</span><span class="pl-smi">cols</span>) <span class="pl-k">+</span>
+geom_jitter(<span class="pl-v">colour</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>gray40<span class="pl-pds">"</span></span>,<span class="pl-v">position</span><span class="pl-k">=</span>position_jitter(<span class="pl-v">width</span><span class="pl-k">=</span><span class="pl-c1">0.2</span>), <span class="pl-v">alpha</span><span class="pl-k">=</span><span class="pl-c1">0.3</span>) <span class="pl-k">+</span>
+labs(<span class="pl-v">title</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Media Type's Sentiment Scores<span class="pl-pds">"</span></span>) <span class="pl-k">+</span> 
+xlab(<span class="pl-s"><span class="pl-pds">'</span>Media Type<span class="pl-pds">'</span></span>) <span class="pl-k">+</span> ylab(<span class="pl-s"><span class="pl-pds">'</span>Sentiment Score<span class="pl-pds">'</span></span>)
+<span class="pl-c"># barplot of average score</span>
+<span class="pl-v">meanscore</span> <span class="pl-k">=</span> tapply(<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">score</span>, <span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">mediatype</span>, <span class="pl-smi">mean</span>)
+<span class="pl-v">df.plot</span> <span class="pl-k">=</span> <span class="pl-k">data.frame</span>(<span class="pl-v">mediatype</span><span class="pl-k">=</span>names(<span class="pl-smi">meanscore</span>), <span class="pl-v">meanscore</span><span class="pl-k">=</span><span class="pl-smi">meanscore</span>)
+<span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">mediatypes</span> <span class="pl-k">&lt;-</span> reorder(<span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">mediatype</span>, <span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">meanscore</span>)
+ggplot(<span class="pl-smi">df.plot</span>, aes(<span class="pl-v">x</span> <span class="pl-k">=</span> <span class="pl-k">factor</span>(<span class="pl-smi">mediatypes</span>), <span class="pl-v">y</span> <span class="pl-k">=</span> <span class="pl-smi">meanscore</span>, <span class="pl-v">fill</span><span class="pl-k">=</span><span class="pl-smi">mediatypes</span>)) <span class="pl-k">+</span>
+geom_bar(<span class="pl-v">stat</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>identity<span class="pl-pds">"</span></span>) <span class="pl-k">+</span>
+scale_fill_manual(<span class="pl-v">values</span><span class="pl-k">=</span><span class="pl-smi">cols</span>[order(<span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">meanscore</span>)]) <span class="pl-k">+</span>
+labs(<span class="pl-v">title</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Average Sentiment Score<span class="pl-pds">"</span></span>) <span class="pl-k">+</span> 
+xlab(<span class="pl-s"><span class="pl-pds">'</span>Media Type<span class="pl-pds">'</span></span>) <span class="pl-k">+</span> ylab(<span class="pl-s"><span class="pl-pds">'</span>Average Score<span class="pl-pds">'</span></span>)
+<span class="pl-c"># barplot of average very positive</span>
+<span class="pl-v">mediatype_pos</span> <span class="pl-k">=</span> ddply(<span class="pl-smi">scores</span>, .(<span class="pl-smi">mediatype</span>), <span class="pl-smi">summarise</span>, <span class="pl-v">mean_pos</span><span class="pl-k">=</span>mean(<span class="pl-smi">very.pos</span>))
+<span class="pl-smi">mediatype_pos</span><span class="pl-k">$</span><span class="pl-smi">mediatypes</span> <span class="pl-k">&lt;-</span> reorder(<span class="pl-smi">mediatype_pos</span><span class="pl-k">$</span><span class="pl-smi">mediatype</span>, <span class="pl-smi">mediatype_pos</span><span class="pl-k">$</span><span class="pl-smi">mean_pos</span>)
+ggplot(<span class="pl-smi">mediatype_pos</span>, aes(<span class="pl-v">x</span> <span class="pl-k">=</span> <span class="pl-k">factor</span>(<span class="pl-smi">mediatypes</span>), <span class="pl-v">y</span> <span class="pl-k">=</span> <span class="pl-smi">mean_pos</span>, <span class="pl-v">fill</span><span class="pl-k">=</span><span class="pl-smi">mediatypes</span>)) <span class="pl-k">+</span>
+geom_bar(<span class="pl-v">stat</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>identity<span class="pl-pds">"</span></span>) <span class="pl-k">+</span>
+scale_fill_manual(<span class="pl-v">values</span><span class="pl-k">=</span><span class="pl-smi">cols</span>[order(<span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">meanscore</span>)]) <span class="pl-k">+</span>
+labs(<span class="pl-v">title</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Average Fraction Very Positive Sentiment Score (Bank A)<span class="pl-pds">"</span></span>) <span class="pl-k">+</span> 
+xlab(<span class="pl-s"><span class="pl-pds">'</span>Media Type<span class="pl-pds">'</span></span>) <span class="pl-k">+</span> ylab(<span class="pl-s"><span class="pl-pds">'</span>Average Score<span class="pl-pds">'</span></span>)
+<span class="pl-v">mediatype_neg</span> <span class="pl-k">=</span> ddply(<span class="pl-smi">scores</span>, .(<span class="pl-smi">mediatype</span>), <span class="pl-smi">summarise</span>, <span class="pl-v">mean_neg</span><span class="pl-k">=</span>mean(<span class="pl-smi">very.neg</span>))
+<span class="pl-smi">mediatype_neg</span><span class="pl-k">$</span><span class="pl-smi">mediatypes</span> <span class="pl-k">&lt;-</span> reorder(<span class="pl-smi">mediatype_pos</span><span class="pl-k">$</span><span class="pl-smi">mediatype</span>, <span class="pl-smi">mediatype_neg</span><span class="pl-k">$</span><span class="pl-smi">mean_neg</span>)
+ggplot(<span class="pl-smi">mediatype_neg</span>, aes(<span class="pl-v">x</span> <span class="pl-k">=</span> <span class="pl-k">factor</span>(<span class="pl-smi">mediatypes</span>), <span class="pl-v">y</span> <span class="pl-k">=</span> <span class="pl-smi">mean_neg</span>, <span class="pl-v">fill</span><span class="pl-k">=</span><span class="pl-smi">mediatypes</span>)) <span class="pl-k">+</span>
+geom_bar(<span class="pl-v">stat</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>identity<span class="pl-pds">"</span></span>) <span class="pl-k">+</span>
+scale_fill_manual(<span class="pl-v">values</span><span class="pl-k">=</span><span class="pl-smi">cols</span>[order(<span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">meanscore</span>)]) <span class="pl-k">+</span>
+labs(<span class="pl-v">title</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Average Fraction Very Negative Sentiment Score (Bank A)<span class="pl-pds">"</span></span>) <span class="pl-k">+</span> 
+xlab(<span class="pl-s"><span class="pl-pds">'</span>Media Type<span class="pl-pds">'</span></span>) <span class="pl-k">+</span> ylab(<span class="pl-s"><span class="pl-pds">'</span>Average Score<span class="pl-pds">'</span></span>)
+<span class="pl-c">#-------Sentiment analysis Bank B-------</span>
+<span class="pl-v">total.sentiment</span> <span class="pl-k">=</span> <span class="pl-smi">total_bankB</span>
+<span class="pl-v">scores</span> <span class="pl-k">=</span> score.sentiment(as.character(<span class="pl-smi">total.sentiment</span><span class="pl-k">$</span><span class="pl-smi">FullText</span>), <span class="pl-smi">pos</span>, <span class="pl-smi">neg</span>, <span class="pl-v">.progress</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">'</span>text<span class="pl-pds">'</span></span>)
+<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-v">very.pos</span> <span class="pl-k">=</span> as.numeric(<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">score</span> <span class="pl-k">&gt;</span><span class="pl-k">=</span> <span class="pl-c1">1</span>)
+<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-v">very.neg</span> <span class="pl-k">=</span> as.numeric(<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">score</span> <span class="pl-k">&lt;</span><span class="pl-k">=</span> <span class="pl-k">-</span><span class="pl-c1">1</span>)
+<span class="pl-c"># how many very positives and very negatives</span>
+<span class="pl-v">numpos</span> <span class="pl-k">=</span> sum(<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">very.pos</span>)
+<span class="pl-v">numneg</span> <span class="pl-k">=</span> sum(<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">very.neg</span>)
+<span class="pl-c"># global score</span>
+<span class="pl-v">global_score</span> <span class="pl-k">=</span> round( <span class="pl-c1">100</span> <span class="pl-k">*</span> <span class="pl-smi">numpos</span> <span class="pl-k">/</span> (<span class="pl-smi">numpos</span> <span class="pl-k">+</span> <span class="pl-smi">numneg</span>) )
+<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-v">mediatype</span> <span class="pl-k">=</span> <span class="pl-smi">total.sentiment</span><span class="pl-k">$</span><span class="pl-smi">MediaType</span>
+<span class="pl-c"># colors</span>
+<span class="pl-v">cols</span> <span class="pl-k">=</span> c(<span class="pl-s"><span class="pl-pds">"</span>#7CAE00<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>#00BFC4<span class="pl-pds">"</span></span>)
+names(<span class="pl-smi">cols</span>) <span class="pl-k">=</span> c(<span class="pl-s"><span class="pl-pds">"</span>twitter<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>facebook<span class="pl-pds">"</span></span>)
+<span class="pl-c"># boxplot</span>
+library(<span class="pl-smi">ggplot2</span>)
+ggplot(<span class="pl-smi">scores</span>, aes(<span class="pl-v">x</span><span class="pl-k">=</span><span class="pl-smi">mediatype</span>, <span class="pl-v">y</span><span class="pl-k">=</span><span class="pl-smi">score</span>, <span class="pl-v">group</span><span class="pl-k">=</span><span class="pl-smi">mediatype</span>)) <span class="pl-k">+</span>
+geom_boxplot(aes(<span class="pl-v">fill</span><span class="pl-k">=</span><span class="pl-smi">mediatype</span>)) <span class="pl-k">+</span>
+scale_fill_manual(<span class="pl-v">values</span><span class="pl-k">=</span><span class="pl-smi">cols</span>) <span class="pl-k">+</span>
+geom_jitter(<span class="pl-v">colour</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>gray40<span class="pl-pds">"</span></span>,<span class="pl-v">position</span><span class="pl-k">=</span>position_jitter(<span class="pl-v">width</span><span class="pl-k">=</span><span class="pl-c1">0.2</span>), <span class="pl-v">alpha</span><span class="pl-k">=</span><span class="pl-c1">0.3</span>) <span class="pl-k">+</span>
+labs(<span class="pl-v">title</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Media Type's Sentiment Scores<span class="pl-pds">"</span></span>) <span class="pl-k">+</span> 
+xlab(<span class="pl-s"><span class="pl-pds">'</span>Media Type<span class="pl-pds">'</span></span>) <span class="pl-k">+</span> ylab(<span class="pl-s"><span class="pl-pds">'</span>Sentiment Score<span class="pl-pds">'</span></span>)
+<span class="pl-c"># barplot of average score</span>
+<span class="pl-v">meanscore</span> <span class="pl-k">=</span> tapply(<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">score</span>, <span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">mediatype</span>, <span class="pl-smi">mean</span>)
+<span class="pl-v">df.plot</span> <span class="pl-k">=</span> <span class="pl-k">data.frame</span>(<span class="pl-v">mediatype</span><span class="pl-k">=</span>names(<span class="pl-smi">meanscore</span>), <span class="pl-v">meanscore</span><span class="pl-k">=</span><span class="pl-smi">meanscore</span>)
+<span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">mediatypes</span> <span class="pl-k">&lt;-</span> reorder(<span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">mediatype</span>, <span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">meanscore</span>)
+ggplot(<span class="pl-smi">df.plot</span>, aes(<span class="pl-v">x</span> <span class="pl-k">=</span> <span class="pl-k">factor</span>(<span class="pl-smi">mediatypes</span>), <span class="pl-v">y</span> <span class="pl-k">=</span> <span class="pl-smi">meanscore</span>, <span class="pl-v">fill</span><span class="pl-k">=</span><span class="pl-smi">mediatypes</span>)) <span class="pl-k">+</span>
+geom_bar(<span class="pl-v">stat</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>identity<span class="pl-pds">"</span></span>) <span class="pl-k">+</span>
+scale_fill_manual(<span class="pl-v">values</span><span class="pl-k">=</span><span class="pl-smi">cols</span>[order(<span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">meanscore</span>)]) <span class="pl-k">+</span>
+labs(<span class="pl-v">title</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Average Sentiment Score<span class="pl-pds">"</span></span>) <span class="pl-k">+</span> 
+xlab(<span class="pl-s"><span class="pl-pds">'</span>Media Type<span class="pl-pds">'</span></span>) <span class="pl-k">+</span> ylab(<span class="pl-s"><span class="pl-pds">'</span>Average Score<span class="pl-pds">'</span></span>)
+<span class="pl-c"># barplot of average very positive</span>
+<span class="pl-v">mediatype_pos</span> <span class="pl-k">=</span> ddply(<span class="pl-smi">scores</span>, .(<span class="pl-smi">mediatype</span>), <span class="pl-smi">summarise</span>, <span class="pl-v">mean_pos</span><span class="pl-k">=</span>mean(<span class="pl-smi">very.pos</span>))
+<span class="pl-smi">mediatype_pos</span><span class="pl-k">$</span><span class="pl-smi">mediatypes</span> <span class="pl-k">&lt;-</span> reorder(<span class="pl-smi">mediatype_pos</span><span class="pl-k">$</span><span class="pl-smi">mediatype</span>, <span class="pl-smi">mediatype_pos</span><span class="pl-k">$</span><span class="pl-smi">mean_pos</span>)
+ggplot(<span class="pl-smi">mediatype_pos</span>, aes(<span class="pl-v">x</span> <span class="pl-k">=</span> <span class="pl-k">factor</span>(<span class="pl-smi">mediatypes</span>), <span class="pl-v">y</span> <span class="pl-k">=</span> <span class="pl-smi">mean_pos</span>, <span class="pl-v">fill</span><span class="pl-k">=</span><span class="pl-smi">mediatypes</span>)) <span class="pl-k">+</span>
+geom_bar(<span class="pl-v">stat</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>identity<span class="pl-pds">"</span></span>) <span class="pl-k">+</span>
+scale_fill_manual(<span class="pl-v">values</span><span class="pl-k">=</span><span class="pl-smi">cols</span>[order(<span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">meanscore</span>)]) <span class="pl-k">+</span>
+labs(<span class="pl-v">title</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Average Fraction Very Positive Sentiment Score (Bank B)<span class="pl-pds">"</span></span>) <span class="pl-k">+</span> 
+xlab(<span class="pl-s"><span class="pl-pds">'</span>Media Type<span class="pl-pds">'</span></span>) <span class="pl-k">+</span> ylab(<span class="pl-s"><span class="pl-pds">'</span>Average Score<span class="pl-pds">'</span></span>)
+<span class="pl-v">mediatype_neg</span> <span class="pl-k">=</span> ddply(<span class="pl-smi">scores</span>, .(<span class="pl-smi">mediatype</span>), <span class="pl-smi">summarise</span>, <span class="pl-v">mean_neg</span><span class="pl-k">=</span>mean(<span class="pl-smi">very.neg</span>))
+<span class="pl-smi">mediatype_neg</span><span class="pl-k">$</span><span class="pl-smi">mediatypes</span> <span class="pl-k">&lt;-</span> reorder(<span class="pl-smi">mediatype_pos</span><span class="pl-k">$</span><span class="pl-smi">mediatype</span>, <span class="pl-smi">mediatype_neg</span><span class="pl-k">$</span><span class="pl-smi">mean_neg</span>)
+ggplot(<span class="pl-smi">mediatype_neg</span>, aes(<span class="pl-v">x</span> <span class="pl-k">=</span> <span class="pl-k">factor</span>(<span class="pl-smi">mediatypes</span>), <span class="pl-v">y</span> <span class="pl-k">=</span> <span class="pl-smi">mean_neg</span>, <span class="pl-v">fill</span><span class="pl-k">=</span><span class="pl-smi">mediatypes</span>)) <span class="pl-k">+</span>
+geom_bar(<span class="pl-v">stat</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>identity<span class="pl-pds">"</span></span>) <span class="pl-k">+</span>
+scale_fill_manual(<span class="pl-v">values</span><span class="pl-k">=</span><span class="pl-smi">cols</span>[order(<span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">meanscore</span>)]) <span class="pl-k">+</span>
+labs(<span class="pl-v">title</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Average Fraction Very Negative Sentiment Score (Bank B)<span class="pl-pds">"</span></span>) <span class="pl-k">+</span> 
+xlab(<span class="pl-s"><span class="pl-pds">'</span>Media Type<span class="pl-pds">'</span></span>) <span class="pl-k">+</span> ylab(<span class="pl-s"><span class="pl-pds">'</span>Average Score<span class="pl-pds">'</span></span>)
+<span class="pl-c">#-------Sentiment analysis Bank C-------</span>
+<span class="pl-v">total.sentiment</span> <span class="pl-k">=</span> <span class="pl-smi">total_bankC</span>
+<span class="pl-v">scores</span> <span class="pl-k">=</span> score.sentiment(as.character(<span class="pl-smi">total.sentiment</span><span class="pl-k">$</span><span class="pl-smi">FullText</span>), <span class="pl-smi">pos</span>, <span class="pl-smi">neg</span>, <span class="pl-v">.progress</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">'</span>text<span class="pl-pds">'</span></span>)
+<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-v">very.pos</span> <span class="pl-k">=</span> as.numeric(<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">score</span> <span class="pl-k">&gt;</span><span class="pl-k">=</span> <span class="pl-c1">1</span>)
+<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-v">very.neg</span> <span class="pl-k">=</span> as.numeric(<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">score</span> <span class="pl-k">&lt;</span><span class="pl-k">=</span> <span class="pl-k">-</span><span class="pl-c1">1</span>)
+<span class="pl-c"># how many very positives and very negatives</span>
+<span class="pl-v">numpos</span> <span class="pl-k">=</span> sum(<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">very.pos</span>)
+<span class="pl-v">numneg</span> <span class="pl-k">=</span> sum(<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">very.neg</span>)
+<span class="pl-c"># global score</span>
+<span class="pl-v">global_score</span> <span class="pl-k">=</span> round( <span class="pl-c1">100</span> <span class="pl-k">*</span> <span class="pl-smi">numpos</span> <span class="pl-k">/</span> (<span class="pl-smi">numpos</span> <span class="pl-k">+</span> <span class="pl-smi">numneg</span>) )
+<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-v">mediatype</span> <span class="pl-k">=</span> <span class="pl-smi">total.sentiment</span><span class="pl-k">$</span><span class="pl-smi">MediaType</span>
+<span class="pl-c"># colors</span>
+<span class="pl-v">cols</span> <span class="pl-k">=</span> c(<span class="pl-s"><span class="pl-pds">"</span>#7CAE00<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>#00BFC4<span class="pl-pds">"</span></span>)
+names(<span class="pl-smi">cols</span>) <span class="pl-k">=</span> c(<span class="pl-s"><span class="pl-pds">"</span>twitter<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>facebook<span class="pl-pds">"</span></span>)
+<span class="pl-c"># boxplot</span>
+library(<span class="pl-smi">ggplot2</span>)
+ggplot(<span class="pl-smi">scores</span>, aes(<span class="pl-v">x</span><span class="pl-k">=</span><span class="pl-smi">mediatype</span>, <span class="pl-v">y</span><span class="pl-k">=</span><span class="pl-smi">score</span>, <span class="pl-v">group</span><span class="pl-k">=</span><span class="pl-smi">mediatype</span>)) <span class="pl-k">+</span>
+geom_boxplot(aes(<span class="pl-v">fill</span><span class="pl-k">=</span><span class="pl-smi">mediatype</span>)) <span class="pl-k">+</span>
+scale_fill_manual(<span class="pl-v">values</span><span class="pl-k">=</span><span class="pl-smi">cols</span>) <span class="pl-k">+</span>
+geom_jitter(<span class="pl-v">colour</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>gray40<span class="pl-pds">"</span></span>,<span class="pl-v">position</span><span class="pl-k">=</span>position_jitter(<span class="pl-v">width</span><span class="pl-k">=</span><span class="pl-c1">0.2</span>), <span class="pl-v">alpha</span><span class="pl-k">=</span><span class="pl-c1">0.3</span>) <span class="pl-k">+</span>
+labs(<span class="pl-v">title</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Media Type's Sentiment Scores<span class="pl-pds">"</span></span>) <span class="pl-k">+</span> 
+xlab(<span class="pl-s"><span class="pl-pds">'</span>Media Type<span class="pl-pds">'</span></span>) <span class="pl-k">+</span> ylab(<span class="pl-s"><span class="pl-pds">'</span>Sentiment Score<span class="pl-pds">'</span></span>)
+<span class="pl-c"># barplot of average score</span>
+<span class="pl-v">meanscore</span> <span class="pl-k">=</span> tapply(<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">score</span>, <span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">mediatype</span>, <span class="pl-smi">mean</span>)
+<span class="pl-v">df.plot</span> <span class="pl-k">=</span> <span class="pl-k">data.frame</span>(<span class="pl-v">mediatype</span><span class="pl-k">=</span>names(<span class="pl-smi">meanscore</span>), <span class="pl-v">meanscore</span><span class="pl-k">=</span><span class="pl-smi">meanscore</span>)
+<span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">mediatypes</span> <span class="pl-k">&lt;-</span> reorder(<span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">mediatype</span>, <span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">meanscore</span>)
+ggplot(<span class="pl-smi">df.plot</span>, aes(<span class="pl-v">x</span> <span class="pl-k">=</span> <span class="pl-k">factor</span>(<span class="pl-smi">mediatypes</span>), <span class="pl-v">y</span> <span class="pl-k">=</span> <span class="pl-smi">meanscore</span>, <span class="pl-v">fill</span><span class="pl-k">=</span><span class="pl-smi">mediatypes</span>)) <span class="pl-k">+</span>
+geom_bar(<span class="pl-v">stat</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>identity<span class="pl-pds">"</span></span>) <span class="pl-k">+</span>
+scale_fill_manual(<span class="pl-v">values</span><span class="pl-k">=</span><span class="pl-smi">cols</span>[order(<span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">meanscore</span>)]) <span class="pl-k">+</span>
+labs(<span class="pl-v">title</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Average Sentiment Score<span class="pl-pds">"</span></span>) <span class="pl-k">+</span> 
+xlab(<span class="pl-s"><span class="pl-pds">'</span>Media Type<span class="pl-pds">'</span></span>) <span class="pl-k">+</span> ylab(<span class="pl-s"><span class="pl-pds">'</span>Average Score<span class="pl-pds">'</span></span>)
+<span class="pl-c"># barplot of average very positive</span>
+<span class="pl-v">mediatype_pos</span> <span class="pl-k">=</span> ddply(<span class="pl-smi">scores</span>, .(<span class="pl-smi">mediatype</span>), <span class="pl-smi">summarise</span>, <span class="pl-v">mean_pos</span><span class="pl-k">=</span>mean(<span class="pl-smi">very.pos</span>))
+<span class="pl-smi">mediatype_pos</span><span class="pl-k">$</span><span class="pl-smi">mediatypes</span> <span class="pl-k">&lt;-</span> reorder(<span class="pl-smi">mediatype_pos</span><span class="pl-k">$</span><span class="pl-smi">mediatype</span>, <span class="pl-smi">mediatype_pos</span><span class="pl-k">$</span><span class="pl-smi">mean_pos</span>)
+ggplot(<span class="pl-smi">mediatype_pos</span>, aes(<span class="pl-v">x</span> <span class="pl-k">=</span> <span class="pl-k">factor</span>(<span class="pl-smi">mediatypes</span>), <span class="pl-v">y</span> <span class="pl-k">=</span> <span class="pl-smi">mean_pos</span>, <span class="pl-v">fill</span><span class="pl-k">=</span><span class="pl-smi">mediatypes</span>)) <span class="pl-k">+</span>
+geom_bar(<span class="pl-v">stat</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>identity<span class="pl-pds">"</span></span>) <span class="pl-k">+</span>
+scale_fill_manual(<span class="pl-v">values</span><span class="pl-k">=</span><span class="pl-smi">cols</span>[order(<span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">meanscore</span>)]) <span class="pl-k">+</span>
+labs(<span class="pl-v">title</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Average Fraction Very Positive Sentiment Score (Bank C)<span class="pl-pds">"</span></span>) <span class="pl-k">+</span> 
+xlab(<span class="pl-s"><span class="pl-pds">'</span>Media Type<span class="pl-pds">'</span></span>) <span class="pl-k">+</span> ylab(<span class="pl-s"><span class="pl-pds">'</span>Average Score<span class="pl-pds">'</span></span>)
+<span class="pl-v">mediatype_neg</span> <span class="pl-k">=</span> ddply(<span class="pl-smi">scores</span>, .(<span class="pl-smi">mediatype</span>), <span class="pl-smi">summarise</span>, <span class="pl-v">mean_neg</span><span class="pl-k">=</span>mean(<span class="pl-smi">very.neg</span>))
+<span class="pl-smi">mediatype_neg</span><span class="pl-k">$</span><span class="pl-smi">mediatypes</span> <span class="pl-k">&lt;-</span> reorder(<span class="pl-smi">mediatype_pos</span><span class="pl-k">$</span><span class="pl-smi">mediatype</span>, <span class="pl-smi">mediatype_neg</span><span class="pl-k">$</span><span class="pl-smi">mean_neg</span>)
+ggplot(<span class="pl-smi">mediatype_neg</span>, aes(<span class="pl-v">x</span> <span class="pl-k">=</span> <span class="pl-k">factor</span>(<span class="pl-smi">mediatypes</span>), <span class="pl-v">y</span> <span class="pl-k">=</span> <span class="pl-smi">mean_neg</span>, <span class="pl-v">fill</span><span class="pl-k">=</span><span class="pl-smi">mediatypes</span>)) <span class="pl-k">+</span>
+geom_bar(<span class="pl-v">stat</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>identity<span class="pl-pds">"</span></span>) <span class="pl-k">+</span>
+scale_fill_manual(<span class="pl-v">values</span><span class="pl-k">=</span><span class="pl-smi">cols</span>[order(<span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">meanscore</span>)]) <span class="pl-k">+</span>
+labs(<span class="pl-v">title</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Average Fraction Very Negative Sentiment Score (Bank C)<span class="pl-pds">"</span></span>) <span class="pl-k">+</span>
+xlab(<span class="pl-s"><span class="pl-pds">'</span>Media Type<span class="pl-pds">'</span></span>) <span class="pl-k">+</span> ylab(<span class="pl-s"><span class="pl-pds">'</span>Average Score<span class="pl-pds">'</span></span>)
+<span class="pl-c">#-------Sentiment analysis Bank D-------</span>
+<span class="pl-v">total.sentiment</span> <span class="pl-k">=</span> <span class="pl-smi">total_bankD</span>
+<span class="pl-v">scores</span> <span class="pl-k">=</span> score.sentiment(as.character(<span class="pl-smi">total.sentiment</span><span class="pl-k">$</span><span class="pl-smi">FullText</span>), <span class="pl-smi">pos</span>, <span class="pl-smi">neg</span>, <span class="pl-v">.progress</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">'</span>text<span class="pl-pds">'</span></span>)
+<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-v">very.pos</span> <span class="pl-k">=</span> as.numeric(<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">score</span> <span class="pl-k">&gt;</span><span class="pl-k">=</span> <span class="pl-c1">1</span>)
+<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-v">very.neg</span> <span class="pl-k">=</span> as.numeric(<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">score</span> <span class="pl-k">&lt;</span><span class="pl-k">=</span> <span class="pl-k">-</span><span class="pl-c1">1</span>)
+<span class="pl-c"># how many very positives and very negatives</span>
+<span class="pl-v">numpos</span> <span class="pl-k">=</span> sum(<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">very.pos</span>)
+<span class="pl-v">numneg</span> <span class="pl-k">=</span> sum(<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">very.neg</span>)
+<span class="pl-c"># global score</span>
+<span class="pl-v">global_score</span> <span class="pl-k">=</span> round( <span class="pl-c1">100</span> <span class="pl-k">*</span> <span class="pl-smi">numpos</span> <span class="pl-k">/</span> (<span class="pl-smi">numpos</span> <span class="pl-k">+</span> <span class="pl-smi">numneg</span>) )
+<span class="pl-c"># colors</span>
+<span class="pl-v">cols</span> <span class="pl-k">=</span> c(<span class="pl-s"><span class="pl-pds">"</span>#7CAE00<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>#00BFC4<span class="pl-pds">"</span></span>)
+names(<span class="pl-smi">cols</span>) <span class="pl-k">=</span> c(<span class="pl-s"><span class="pl-pds">"</span>twitter<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>facebook<span class="pl-pds">"</span></span>)
+<span class="pl-c"># boxplot</span>
+library(<span class="pl-smi">ggplot2</span>)
+ggplot(<span class="pl-smi">scores</span>, aes(<span class="pl-v">x</span><span class="pl-k">=</span><span class="pl-smi">mediatype</span>, <span class="pl-v">y</span><span class="pl-k">=</span><span class="pl-smi">score</span>, <span class="pl-v">group</span><span class="pl-k">=</span><span class="pl-smi">mediatype</span>)) <span class="pl-k">+</span>
+geom_boxplot(aes(<span class="pl-v">fill</span><span class="pl-k">=</span><span class="pl-smi">mediatype</span>)) <span class="pl-k">+</span>
+scale_fill_manual(<span class="pl-v">values</span><span class="pl-k">=</span><span class="pl-smi">cols</span>) <span class="pl-k">+</span>
+geom_jitter(<span class="pl-v">colour</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>gray40<span class="pl-pds">"</span></span>,<span class="pl-v">position</span><span class="pl-k">=</span>position_jitter(<span class="pl-v">width</span><span class="pl-k">=</span><span class="pl-c1">0.2</span>), <span class="pl-v">alpha</span><span class="pl-k">=</span><span class="pl-c1">0.3</span>) <span class="pl-k">+</span>
+labs(<span class="pl-v">title</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Media Type's Sentiment Scores<span class="pl-pds">"</span></span>) <span class="pl-k">+</span> 
+xlab(<span class="pl-s"><span class="pl-pds">'</span>Media Type<span class="pl-pds">'</span></span>) <span class="pl-k">+</span> ylab(<span class="pl-s"><span class="pl-pds">'</span>Sentiment Score<span class="pl-pds">'</span></span>)
+<span class="pl-c"># barplot of average score</span>
+<span class="pl-v">meanscore</span> <span class="pl-k">=</span> tapply(<span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">score</span>, <span class="pl-smi">scores</span><span class="pl-k">$</span><span class="pl-smi">mediatype</span>, <span class="pl-smi">mean</span>)
+<span class="pl-v">df.plot</span> <span class="pl-k">=</span> <span class="pl-k">data.frame</span>(<span class="pl-v">mediatype</span><span class="pl-k">=</span>names(<span class="pl-smi">meanscore</span>), <span class="pl-v">meanscore</span><span class="pl-k">=</span><span class="pl-smi">meanscore</span>)
+<span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">mediatypes</span> <span class="pl-k">&lt;-</span> reorder(<span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">mediatype</span>, <span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">meanscore</span>)
+ggplot(<span class="pl-smi">df.plot</span>, aes(<span class="pl-v">x</span> <span class="pl-k">=</span> <span class="pl-k">factor</span>(<span class="pl-smi">mediatypes</span>), <span class="pl-v">y</span> <span class="pl-k">=</span> <span class="pl-smi">meanscore</span>, <span class="pl-v">fill</span><span class="pl-k">=</span><span class="pl-smi">mediatypes</span>)) <span class="pl-k">+</span>
+geom_bar(<span class="pl-v">stat</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>identity<span class="pl-pds">"</span></span>) <span class="pl-k">+</span>
+scale_fill_manual(<span class="pl-v">values</span><span class="pl-k">=</span><span class="pl-smi">cols</span>[order(<span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">meanscore</span>)]) <span class="pl-k">+</span>
+labs(<span class="pl-v">title</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Average Sentiment Score<span class="pl-pds">"</span></span>) <span class="pl-k">+</span> 
+xlab(<span class="pl-s"><span class="pl-pds">'</span>Media Type<span class="pl-pds">'</span></span>) <span class="pl-k">+</span> ylab(<span class="pl-s"><span class="pl-pds">'</span>Average Score<span class="pl-pds">'</span></span>)
+<span class="pl-c"># barplot of average very positive</span>
+<span class="pl-v">mediatype_pos</span> <span class="pl-k">=</span> ddply(<span class="pl-smi">scores</span>, .(<span class="pl-smi">mediatype</span>), <span class="pl-smi">summarise</span>, <span class="pl-v">mean_pos</span><span class="pl-k">=</span>mean(<span class="pl-smi">very.pos</span>))
+<span class="pl-smi">mediatype_pos</span><span class="pl-k">$</span><span class="pl-smi">mediatypes</span> <span class="pl-k">&lt;-</span> reorder(<span class="pl-smi">mediatype_pos</span><span class="pl-k">$</span><span class="pl-smi">mediatype</span>, <span class="pl-smi">mediatype_pos</span><span class="pl-k">$</span><span class="pl-smi">mean_pos</span>)
+ggplot(<span class="pl-smi">mediatype_pos</span>, aes(<span class="pl-v">x</span> <span class="pl-k">=</span> <span class="pl-k">factor</span>(<span class="pl-smi">mediatypes</span>), <span class="pl-v">y</span> <span class="pl-k">=</span> <span class="pl-smi">mean_pos</span>, <span class="pl-v">fill</span><span class="pl-k">=</span><span class="pl-smi">mediatypes</span>)) <span class="pl-k">+</span>
+geom_bar(<span class="pl-v">stat</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>identity<span class="pl-pds">"</span></span>) <span class="pl-k">+</span>
+scale_fill_manual(<span class="pl-v">values</span><span class="pl-k">=</span><span class="pl-smi">cols</span>[order(<span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">meanscore</span>)]) <span class="pl-k">+</span>
+labs(<span class="pl-v">title</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Average Fraction Very Positive Sentiment Score (Bank D)<span class="pl-pds">"</span></span>) <span class="pl-k">+</span> 
+xlab(<span class="pl-s"><span class="pl-pds">'</span>Media Type<span class="pl-pds">'</span></span>) <span class="pl-k">+</span> ylab(<span class="pl-s"><span class="pl-pds">'</span>Average Score<span class="pl-pds">'</span></span>)
+<span class="pl-v">mediatype_neg</span> <span class="pl-k">=</span> ddply(<span class="pl-smi">scores</span>, .(<span class="pl-smi">mediatype</span>), <span class="pl-smi">summarise</span>, <span class="pl-v">mean_neg</span><span class="pl-k">=</span>mean(<span class="pl-smi">very.neg</span>))
+<span class="pl-smi">mediatype_neg</span><span class="pl-k">$</span><span class="pl-smi">mediatypes</span> <span class="pl-k">&lt;-</span> reorder(<span class="pl-smi">mediatype_pos</span><span class="pl-k">$</span><span class="pl-smi">mediatype</span>, <span class="pl-smi">mediatype_neg</span><span class="pl-k">$</span><span class="pl-smi">mean_neg</span>)
+ggplot(<span class="pl-smi">mediatype_neg</span>, aes(<span class="pl-v">x</span> <span class="pl-k">=</span> <span class="pl-k">factor</span>(<span class="pl-smi">mediatypes</span>), <span class="pl-v">y</span> <span class="pl-k">=</span> <span class="pl-smi">mean_neg</span>, <span class="pl-v">fill</span><span class="pl-k">=</span><span class="pl-smi">mediatypes</span>)) <span class="pl-k">+</span>
+geom_bar(<span class="pl-v">stat</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>identity<span class="pl-pds">"</span></span>) <span class="pl-k">+</span>
+scale_fill_manual(<span class="pl-v">values</span><span class="pl-k">=</span><span class="pl-smi">cols</span>[order(<span class="pl-smi">df.plot</span><span class="pl-k">$</span><span class="pl-smi">meanscore</span>)]) <span class="pl-k">+</span>
+labs(<span class="pl-v">title</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Average Fraction Very Negative Sentiment Score (Bank D)<span class="pl-pds">"</span></span>) <span class="pl-k">+</span>
+xlab(<span class="pl-s"><span class="pl-pds">'</span>Media Type<span class="pl-pds">'</span></span>) <span class="pl-k">+</span> ylab(<span class="pl-s"><span class="pl-pds">'</span>Average Score<span class="pl-pds">'</span></span>)</pre></div>
+
+<h3>
+<a id="graphs-for-sentiment-analysis" class="anchor" href="#graphs-for-sentiment-analysis" aria-hidden="true"><span class="octicon octicon-link"></span></a>Graphs for Sentiment Analysis</h3>
+
+<p><a href="http://i.imgur.com/4bGuauq.gif">http://i.imgur.com/4bGuauq.gif</a></p>
+
+<p>Bank A had an average of 0.32:0.28 (1.14) (twitter) and 0.38:0.32 (1.19)(Facebook) (Negative: Positive)<br>
+Bank B had an average 0.24:0.27 (0.89) (twitter) and 0.38:0.21 (1.81) (Facebook) (Negative: Positive)
+Bank C had an average ratio (Negative: Positive) of 0.46:0.16 (2.88) (twitter) and 0.34:0.24 (1.42) (Facebook) 
+Bank D had an average ratio (Negative: Positive) of 0.16:0.07 (2.29) (twitter) and 0.46:0.26 (1.77) (Facebook)</p>
+
+<h2>
+<a id="conclusion" class="anchor" href="#conclusion" aria-hidden="true"><span class="octicon octicon-link"></span></a>Conclusion</h2>
+
+<p>After analyzing the ratios from our sentiment we found that for the topics of foreign and abroad Bank C had the most negative posts with Bank D as a close second. We further investigated the data to determine the substances and found that customers were unhappy with bank cards not working abroad. We also found that many customers felt negatively towards foreign exchange fees, some claiming that Bank D and Bank C must be “rigging” the fee rates. Bank A and Bank B had fairly even negative and positive ratios, additionally they had the least percentage of negative posts of the 4 banks when considering the topics of foreign and abroad transactions. We don’t believe we can necessarily draw any definite inferences from the sentiment analysis as there is no clear evidence that the banks did in fact rig the foreign exchange fee rates, but we can see that it is an important factor that customers are associating with these banks. The use of cards abroad is also an important factor to these customers, and can be an issue that these banks may find worthwhile investigating further. </p>
+
+<h2>
+<a id="new-content" class="anchor" href="#new-content" aria-hidden="true"><span class="octicon octicon-link"></span></a>New Content</h2>
+
+<p>I took our code and expanded upon it to understand what words in general are most frequently being discussed. So I implemented a code that created a plot of word frequency and a word cloud. Below is the code:</p>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-smi">Word</span> <span class="pl-smi">Frequency</span> <span class="pl-smi">plot</span> <span class="pl-k">for</span> <span class="pl-smi">words</span> <span class="pl-smi">occurring</span> <span class="pl-c1">400</span> <span class="pl-smi">or</span> <span class="pl-smi">more</span> <span class="pl-smi">times</span>
+inspect(<span class="pl-smi">tdm</span>[<span class="pl-smi">idx</span> <span class="pl-k">+</span> (<span class="pl-c1">0</span><span class="pl-k">:</span><span class="pl-c1">5</span>), <span class="pl-c1">101</span><span class="pl-k">:</span><span class="pl-c1">110</span>])
+(<span class="pl-smi">freq.terms</span> <span class="pl-k">&lt;-</span> findFreqTerms(<span class="pl-smi">tdm</span>, <span class="pl-v">lowfreq</span> <span class="pl-k">=</span> <span class="pl-c1">400</span>))
+<span class="pl-smi">term.freq</span> <span class="pl-k">&lt;-</span> rowSums(as.matrix(<span class="pl-smi">tdm</span>))
+<span class="pl-smi">term.freq</span> <span class="pl-k">&lt;-</span> subset(<span class="pl-smi">term.freq</span>, <span class="pl-smi">term.freq</span> <span class="pl-k">&gt;</span><span class="pl-k">=</span> <span class="pl-c1">400</span>)
+<span class="pl-smi">df</span> <span class="pl-k">&lt;-</span> <span class="pl-k">data.frame</span>(<span class="pl-v">term</span> <span class="pl-k">=</span> names(<span class="pl-smi">term.freq</span>), <span class="pl-v">freq</span> <span class="pl-k">=</span> <span class="pl-smi">term.freq</span>)
+library(<span class="pl-smi">ggplot2</span>)
+ggplot(<span class="pl-smi">df</span>, aes(<span class="pl-v">x</span> <span class="pl-k">=</span> <span class="pl-smi">term</span>, <span class="pl-v">y</span> <span class="pl-k">=</span> <span class="pl-smi">freq</span>)) <span class="pl-k">+</span> geom_bar(<span class="pl-v">stat</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>identity<span class="pl-pds">"</span></span>) <span class="pl-k">+</span>
+  xlab(<span class="pl-s"><span class="pl-pds">"</span>Terms<span class="pl-pds">"</span></span>) <span class="pl-k">+</span> ylab(<span class="pl-s"><span class="pl-pds">"</span>Count<span class="pl-pds">"</span></span>) <span class="pl-k">+</span> coord_flip()
+
+<span class="pl-smi">Wordcloud</span> <span class="pl-k">for</span> <span class="pl-smi">words</span> <span class="pl-smi">occurring</span> <span class="pl-c1">500</span> <span class="pl-smi">or</span> <span class="pl-smi">more</span> <span class="pl-smi">times</span>
+set.seed(<span class="pl-c1">142</span>)   
+<span class="pl-smi">dark2</span> <span class="pl-k">&lt;-</span> brewer.pal(<span class="pl-c1">6</span>, <span class="pl-s"><span class="pl-pds">"</span>Dark2<span class="pl-pds">"</span></span>)   
+wordcloud(names(<span class="pl-smi">freq</span>), <span class="pl-smi">freq</span>, <span class="pl-v">max.words</span><span class="pl-k">=</span><span class="pl-c1">500</span>, <span class="pl-v">rot.per</span><span class="pl-k">=</span><span class="pl-c1">0.2</span>, <span class="pl-v">colors</span><span class="pl-k">=</span><span class="pl-smi">dark2</span>)   </pre></div>
+
+<p><a href="http://i.imgur.com/pewJolq.png">http://i.imgur.com/pewJolq.png</a></p>
+
+<p><a href="http://i.imgur.com/GnCIybL.jpg">http://i.imgur.com/GnCIybL.jpg</a></p>
+
+<h4>
+<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authors and Contributors</h4>
+
+<p><a href="https://github.com/koatliky" class="user-mention">@koatliky</a> - Major: Data Science
+@mikaelaray - Major: Sociology Minor: Data Science </p>
+
+<h4>
+<a id="sources-and-inspiration" class="anchor" href="#sources-and-inspiration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sources and Inspiration</h4>
+
+<p><a href="http://www.rdatamining.com/docs/text-mining-with-r-of-twitter-data-analysis">http://www.rdatamining.com/docs/text-mining-with-r-of-twitter-data-analysis</a>
+<a href="https://rstudio-pubs-static.s3.amazonaws.com/31867_8236987cf0a8444e962ccd2aec46d9c3.html#term-correlations">https://rstudio-pubs-static.s3.amazonaws.com/31867_8236987cf0a8444e962ccd2aec46d9c3.html#term-correlations</a></p>
+
+<p>Minqing Hu and Bing Liu. "Mining and Summarizing Customer Reviews." 
+       Proceedings of the ACM SIGKDD International Conference on Knowledge 
+       Discovery and Data Mining (KDD-2004), Aug 22-25, 2004, Seattle, 
+       Washington, USA, 
+   Bing Liu, Minqing Hu and Junsheng Cheng. "Opinion Observer: Analyzing 
+       and Comparing Opinions on the Web." Proceedings of the 14th 
+       International World Wide Web conference (WWW-2005), May 10-14, 
+       2005, Chiba, Japan.
+Some code based on <a href="http://www.ihub.co.ke/blogs/23216">http://www.ihub.co.ke/blogs/23216</a> and modified and provided by Dr. Paul Anderson, College of Charleston</p>
+
+<h5>
+<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span class="octicon octicon-link"></span></a>Support or Contact</h5>
+
+<p>Having trouble with Pages? Check out our <a href="https://help.github.com/pages">documentation</a> or <a href="https://github.com/contact">contact support</a> and we’ll help you sort it out.</p>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
+  </body>
+</html>
