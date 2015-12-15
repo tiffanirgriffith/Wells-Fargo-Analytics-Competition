@@ -57,9 +57,39 @@ We noticed many topics; some keywords we found were withdrawn, overdrawn, custom
 <h3>
 <a id="our-code" class="anchor" href="#our-code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Our Code</h3>
 
-<p>.ps-container .ps-scrollbar-x-rail {
-  top: 3px;
-  bottom: auto;</p>
+<p>library("shinydashboard")
+library("shiny")</p>
+
+<p>body &lt;- dashboardBody(
+  fluidRow(
+    column(width = 4,
+           box(
+             title = "Box title", width = NULL, status = "primary",
+             div(style = 'overflow-x: scroll', tableOutput('table'))
+           )
+    )
+  )
+)</p>
+
+<p>ui &lt;- dashboardPage(
+  dashboardHeader(title = "Column layout"),
+  dashboardSidebar(),
+  body
+)</p>
+
+<p>server &lt;- function(input, output) {
+  test.table &lt;- data.frame(lapply(1:8, function(x) {1:10}))
+  names(test.table) &lt;- paste0('This_is_a_very_long_name_', 1:8)</p>
+
+<p>output$table &lt;- renderTable({
+    test.table
+  })
+}</p>
+
+<h1>
+<a id="preview-the-ui-in-the-console" class="anchor" href="#preview-the-ui-in-the-console" aria-hidden="true"><span class="octicon octicon-link"></span></a>Preview the UI in the console</h1>
+
+<p>shinyApp(ui = ui, server = server)</p>
 
 <div class="highlight highlight-source-r"><pre><span class="pl-smi">Cleaning</span> <span class="pl-smi">up</span> <span class="pl-smi">the</span> <span class="pl-smi">data</span><span class="pl-k">:</span>
 <span class="pl-smi">Loading</span> <span class="pl-smi">R</span><span class="pl-k">:</span>
